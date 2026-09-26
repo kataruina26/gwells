@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gevandez Wells Personal Schedule</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+    :root {
+      --f1-cyan: #00d2be;
+      --f1-red: #e10600;
+      --glass-bg: rgba(10, 10, 15, 0.92);
+      --glass-border: rgba(0, 210, 190, 0.3);
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: 'Rajdhani', sans-serif;
+      background-color: #050505;
+      color: white;
+      overflow-x: hidden; 
+    }
+
+    .site-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 1.5rem 1rem;
+      box-sizing: border-box;
+      
+      background-image: url('https://i.pinimg.com/736x/df/22/5f/df225fbd5ef2800f00dff8e8d55beb38.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .site-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.65), rgba(0,0,0,0.92));
+      z-index: 0;
+    }
+
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(0, 210, 190, 0.1);
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+      margin-top: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .title-font {
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .glow-text {
+      text-shadow: 0 0 15px rgba(0, 210, 190, 0.8);
+    }
+
+    .profile-wrapper {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin: 0 auto;
+      border-radius: 50%;
+      padding: 4px;
+      background: linear-gradient(135deg, var(--f1-cyan), #003a35);
+      box-shadow: 0 0 30px rgba(0, 210, 190, 0.5);
+      z-index: 1;
+    }
+
+    .profile-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #0a0a0f;
+    }
+
+    .driver-number {
+      position: absolute;
+      bottom: -5px;
+      right: -5px;
+      background: var(--f1-cyan);
+      color: #000;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.2rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #0a0a0f;
+      box-shadow: 0 0 10px rgba(0,210,190,0.5);
+    }
+
+    .day-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 210, 190, 0.2);
+      color: #888;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-family: 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .day-btn:hover {
+      color: var(--f1-cyan);
+      border-color: var(--f1-cyan);
+      transform: translateY(-2px);
+    }
+
+    .day-btn.active {
+      background: var(--f1-cyan);
+      color: #000;
+      font-weight: 900;
+      border-color: transparent;
+      box-shadow: 0 0 20px rgba(0, 210, 190, 0.4);
+      transform: translateY(0) scale(1.05);
+    }
+
+    .schedule-item {
+      background: rgba(0, 0, 0, 0.4);
+      border-left: 3px solid #333;
+      transition: all 0.4s ease;
+      position: relative;
+      backdrop-filter: blur(5px);
+      z-index: 1;
+      opacity: 0; 
+    }
+    
+    .schedule-item.show {
+      opacity: 1;
+    }
+
+    .schedule-item:hover {
+      background: rgba(0, 210, 190, 0.1);
+      transform: translateX(4px);
+      border-left-width: 6px;
+    }
+
+    .cat-minum { border-left-color: #3498db; }
+    .cat-makan { border-left-color: #e67e22; }
+    .cat-olahraga { border-left-color: var(--f1-red); }
+    .cat-aktivitas { border-left-color: #9b59b6; }
+    .cat-ibadah { border-left-color: #2ecc71; }
+    .cat-istirahat { border-left-color: #f1c40f; }
+    
+    .cat-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .badge-minum { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+    .badge-makan { background: rgba(230, 126, 34, 0.2); color: #e67e22; }
+    .badge-olahraga { background: rgba(225, 6, 0, 0.2); color: var(--f1-red); }
+    .badge-aktivitas { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+    .badge-ibadah { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+    .badge-istirahat { background: rgba(241, 196, 15, 0.2); color: #f1c40f; }
+
+    .schedule-container::-webkit-scrollbar { width: 6px; }
+    .schedule-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    .schedule-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(225,6,0,0.4); border-radius: 10px; }
+  </style>
+</head>
+<body id="app-body">
+
+  <div class="site-wrapper">
+    <div class="glass-panel w-full max-w-md relative pb-6">
+      
+      <!-- Top decorative bar -->
+      <div class="h-1 w-full bg-gradient-to-r from-transparent via-[#00d2be] to-transparent shadow-[0_0_10px_#00d2be]"></div>
+
+      <div class="px-6 pt-6 pb-4 text-center relative z-10">
+        <!-- Profile Image -->
+        <div class="profile-wrapper mb-6">
+          <img src="https://i.pinimg.com/736x/2e/eb/34/2eeb3493d097a46e6f9949e926928b28.jpg" alt="Gevandez Wells" class="profile-img" onerror="this.src='https://placehold.co/140x140/050505/00d2be?text=GW'">
+          <div class="driver-number">63</div>
+        </div>
+
+        <h1 class="title-font text-2xl font-black tracking-widest uppercase mb-1">
+          Gevandez <span class="text-[#00d2be] glow-text">Wells</span><br>
+          <span class="text-sm tracking-normal text-gray-400">Personal Schedule</span>
+        </h1>
+        <div class="flex items-center justify-center gap-3 mb-4 mt-2">
+          <div class="h-[2px] bg-gradient-to-r from-transparent to-[#00d2be] w-12"></div>
+          <p class="text-[10px] tracking-[0.3em] text-gray-300 font-bold uppercase">Race Week Preparation</p>
+          <div class="h-[2px] bg-gradient-to-l from-transparent to-[#00d2be] w-12"></div>
+        </div>
+        
+        <!-- Day Buttons -->
+        <div class="flex gap-1 sm:gap-1.5 justify-between mt-6 pb-2 w-full" id="day-buttons-container"></div>
+      </div>
+      
+      <div class="px-6 relative z-10">
+        <div class="flex justify-between items-end mb-4 border-b border-gray-700/50 pb-2">
+          <h2 class="title-font text-xl font-bold text-white flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#00d2be]"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Telemetry Log
+          </h2>
+          <div class="flex items-center gap-2">
+            <div id="sync-status" class="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Active"></div>
+            
+            <button onclick="openMedKit()" class="bg-[#e10600]/10 text-[#e10600] border border-[#e10600]/50 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 hover:bg-[#e10600] hover:text-white transition-all cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+              MED KIT
+            </button>
+            <button onclick="openCalendar()" class="bg-[#00d2be]/20 text-[#00d2be] border border-[#00d2be]/50 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 hover:bg-[#00d2be] hover:text-black transition-all cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              Recap
+            </button>
+            <span id="current-date-display" class="text-[10px] text-[#00d2be] font-black tracking-widest uppercase bg-[#00d2be]/10 px-2 py-1 rounded hidden md:inline-block"></span>
+          </div>
+        </div>
+        
+        <div class="mb-5 bg-[#0a0a0f]/80 border border-gray-700/50 rounded-xl p-4 shadow-lg backdrop-blur-md">
+          <h3 class="title-font text-sm text-[#00d2be] mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            Telemetry Targets
+          </h3>
+          <ul class="text-[13px] text-gray-300 space-y-1 mb-4 list-disc pl-4 font-medium">
+            <li>Minum air putih 2 liter (sekitar 8 gelas ya ganteng)</li>
+            <li>Ibadah 5 waktunya juga okay</li>
+            <li>Istirahat terjadwal buat jaga imun dan asam lambung netral ya</li>
+          </ul>
+          
+          <h3 class="title-font text-sm text-[#e10600] mb-2 flex items-center gap-2 border-t border-gray-700/50 pt-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Critical Restrictions
+          </h3>
+          <ul class="text-[13px] text-red-300/90 space-y-1 list-disc pl-4 font-medium leading-tight">
+            <li><strong>Kondisi:</strong> Asam lambung akut & imun mudah turun.</li>
+            <li><strong>Pantangan:</strong> Gaboleh makan mie instan & minum kopi banyak banyak.</li>
+            <li><strong>Mental & Fisik:</strong> Gaboleh overthinking & gaboleh kecapean.</li>
+          </ul>
+        </div>
+
+        <div id="schedule-list" class="schedule-container flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-2 pb-4 pl-2 pt-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Recap Modal -->
+  <div id="calendar-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity">
+    <div class="glass-panel !mt-0 !mb-0 w-full max-w-sm p-6 relative border border-[#00d2be]/30 shadow-[0_0_30px_rgba(0,210,190,0.2)]">
+      <button onclick="closeCalendar()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      
+      <div class="flex items-center justify-between gap-2 mb-6 pr-6">
+        <div class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#00d2be]"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <h2 class="title-font text-lg font-bold text-white tracking-wider whitespace-nowrap" id="cal-month-title">RECAP</h2>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="prevMonth()" class="p-1.5 bg-black/50 border border-gray-700/50 rounded hover:border-[#00d2be]/50 hover:text-[#00d2be] transition-colors cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button onclick="nextMonth()" class="p-1.5 bg-black/50 border border-gray-700/50 rounded hover:border-[#00d2be]/50 hover:text-[#00d2be] transition-colors cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+      
+      <div class="flex gap-3 mb-4 text-[9px] uppercase font-bold tracking-wider text-gray-400 justify-center">
+         <div class="flex items-center gap-1"><div class="w-3 h-3 rounded bg-green-500/20 border border-green-500/50"></div> 100%</div>
+         <div class="flex items-center gap-1"><div class="w-3 h-3 rounded bg-yellow-500/20 border border-yellow-500/50"></div> Parsial</div>
+         <div class="flex items-center gap-1"><div class="w-3 h-3 rounded bg-red-500/20 border border-red-500/50"></div> Kosong</div>
+      </div>
+
+      <div id="calendar-grid" class="grid grid-cols-7 gap-1.5 text-center"></div>
+    </div>
+  </div>
+
+  <!-- Medical Kit Modal -->
+  <div id="medkit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity">
+    <div class="glass-panel !mt-0 !mb-0 w-full max-w-sm p-5 relative border border-[#e10600]/30 shadow-[0_0_30px_rgba(225,6,0,0.2)] max-h-[85vh] flex flex-col">
+      <button onclick="closeMedKit()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-10 cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="flex items-center gap-2 mb-4 flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#e10600]"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+        <h2 class="title-font text-xl font-bold text-white tracking-wider">MEDICAL KIT</h2>
+      </div>
+      
+      <div class="overflow-y-auto pr-2 custom-scrollbar flex-grow space-y-3 pb-2">
+        <div class="bg-red-500/10 border border-red-500/30 p-2 rounded-lg text-[11px] text-red-200 mb-2">
+          <strong>⚠️ PERHATIAN:</strong> Karena punya asam lambung akut, GABOLEH minum obat anti-nyeri (Ibuprofen, Asam Mefenamat) saat perut kosong. Wajib mam dulu!
+        </div>
+
+        <div class="bg-black/50 p-3 rounded-xl border border-gray-700/50">
+          <h3 class="text-[#00d2be] text-xs font-bold uppercase mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00d2be]"></span> 1 & 2. Migrain & Demam</h3>
+          <p class="text-xs text-gray-300">✔️ <strong>Paracetamol (Panadol Biru / Sanmol)</strong>. Ini yang paling aman buat lambung. Kalau minum ini migrainnya reda, cukup ini aja.</p>
+        </div>
+
+        <div class="bg-black/50 p-3 rounded-xl border border-gray-700/50">
+          <h3 class="text-[#00d2be] text-xs font-bold uppercase mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00d2be]"></span> 3. Flu</h3>
+          <p class="text-xs text-gray-300">✔️ <strong>Tremenza / Rhinos SR</strong> (hati-hati Rhinos kadang bikin jantung deg-degan). Paling aman banyak minum air hangat & mam sup hangat.</p>
+        </div>
+
+        <div class="bg-black/50 p-3 rounded-xl border border-gray-700/50">
+          <h3 class="text-[#00d2be] text-xs font-bold uppercase mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00d2be]"></span> 4. Batuk Berdahak</h3>
+          <p class="text-xs text-gray-300">✔️ <strong>Bisolvon / OBH Combi</strong>. Pastikan minum SESUDAH MAKAN. Bantu juga pakai perasan jeruk nipis + kecap/madu hangat.</p>
+        </div>
+
+        <div class="bg-black/50 p-3 rounded-xl border border-gray-700/50">
+          <h3 class="text-yellow-400 text-xs font-bold uppercase mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> 5. Emosi Tinggi</h3>
+          <p class="text-xs text-gray-300">🛑 <strong>Tanpa Obat Medis!</strong><br>✔️ Seduh <strong>Minum anget anget</strong>. Duduk, atau kalo masih, berbaring, tarik napas. (Atau *cuddle* sama sy sangat boleh! 🥰)</p>
+        </div>
+
+        <div class="bg-black/50 p-3 rounded-xl border border-gray-700/50">
+          <h3 class="text-[#00d2be] text-xs font-bold uppercase mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00d2be]"></span> 6. Susah BAB (Ee)</h3>
+          <p class="text-xs text-gray-300">Hindari obat pencahar minum (tablet) karena bikin lambung kram. <br>✔️ Makan buah <strong>Pepaya</strong> lumayan banyak. Kalau darurat, pakai <strong>Microlax</strong> (gel yang dimasukkan dari bawah) aman buat lambung.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const jadwalWeekday = [
+      { time: '04:30 - 05:00', cat: 'Ibadah', act: 'Bangun tidur & Ibadah Subuh.' },
+      { time: '05:00 - 05:30', cat: 'Olahraga', act: 'Minum air putih (Gelas 1) & Olahraga kecil.' },
+      { time: '05:30 - 06:30', cat: 'Aktivitas', act: 'Mandi & Sayang Celsi.' },
+      { time: '06:30 - 07:00', cat: 'Makan', act: 'Sarapan (Sup sayur/ayam kuah bening + Semur tahu/tempe) + Air putih (Gelas 2) + Minum Vitamin.' },
+      { time: '07:00 - 11:30', cat: 'Aktivitas', act: 'Aktivitas Pribadi Mas Gevan. Minum air putih (Gelas 3) sekitar jam 09:30.' },
+      { time: '11:30 - 12:00', cat: 'Ibadah', act: 'Ibadah Dzuhur.' },
+      { time: '12:00 - 12:30', cat: 'Makan', act: 'Makan Siang (Oseng kangkung + Ikan goreng) + Air putih (Gelas 4).' },
+      { time: '12:30 - 15:00', cat: 'Istirahat', act: 'Mulai Istirahat Siang.' },
+      { time: '15:00 - 15:30', cat: 'Ibadah', act: 'Bangun sebentar untuk Ibadah Ashar, lalu bisa santai/lanjut istirahat.' },
+      { time: '15:30 - 16:00', cat: 'Minum', act: 'Pengujung istirahat siang. Minum air putih (Gelas 5).' },
+      { time: '16:00 - 17:30', cat: 'Aktivitas', act: 'Aktivitas Pribadi Mas Gevan (Sesi 2) + Sayang Celsi.' },
+      { time: '17:30 - 18:00', cat: 'Ibadah', act: 'Ibadah Maghrib.' },
+      { time: '18:00 - 18:40', cat: 'Makan', act: 'Makan Malam (Semur ayam goreng) + Air putih (Gelas 6).' },
+      { time: '18:40 - 19:00', cat: 'Ibadah', act: 'Ibadah Isya.' },
+      { time: '19:00 - 20:30', cat: 'Aktivitas', act: 'Sayang Celsi. Minum air putih (Gelas 7) jam 19:30.' },
+      { time: '20:30 - 21:00', cat: 'Istirahat', act: 'Persiapan tidur. Minum air putih (Gelas 8).' },
+      { time: '21:00 - 04:30', cat: 'Istirahat', act: 'Istirahat Malam. Sayang Celsi' }
+    ];
+
+    const jadwalWeekend = [
+      { time: '04:30 - 08:30', cat: 'Aktivitas', act: 'Rutinitas pagi (Bangun, Subuh, Sarapan bergizi, Vitamin, dll) dan Sayang Celsi.' },
+      { time: '09:00 - 12:00', cat: 'Olahraga', act: 'Jadwal Gym + Kabarin Celsi. (Pastikan porsi latihan dijaga agar tidak kelelahan dan imun tetap stabil).' },
+      { time: '12:00 - 12:30', cat: 'Makan', act: 'Makan Siang & Ibadah Dzuhur.' },
+      { time: '12:30 - 16:00', cat: 'Istirahat', act: 'Istirahat Siang (termasuk selingan Ibadah Ashar jam 15:00).' },
+      { time: '16:00 - 21:00', cat: 'Aktivitas', act: 'Rutinitas sore ke malam (Aktivitas pribadi santai, Maghrib, Makan Malam, Isya, persiapan tidur).' },
+      { time: '21:00 - 04:30', cat: 'Istirahat', act: 'Istirahat Malam + Sayang Celsi.' }
+    ];
+
+    const scheduleData = {
+      senin: jadwalWeekday,
+      selasa: jadwalWeekday,
+      rabu: jadwalWeekday,
+      kamis: jadwalWeekday,
+      jumat: jadwalWeekday,
+      sabtu: jadwalWeekend,
+      minggu: jadwalWeekend
+    };
+
+    let trackingData = {};
+
+    function initCloudSync() {
+      const syncStatus = document.getElementById('sync-status');
+      trackingData = JSON.parse(localStorage.getItem('gw_schedule_tracking')) || {};
+      if (syncStatus) {
+          syncStatus.className = 'w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]';
+      }
+      generateWeekButtons();
+    }
+
+    function formatDate(date) {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function generateWeekButtons() {
+      const container = document.getElementById('day-buttons-container');
+      container.innerHTML = '';
+      
+      const today = new Date();
+      const day = today.getDay();
+      const diff = today.getDate() - day + (day === 0 ? -6 : 1); 
+      const monday = new Date(today.setDate(diff));
+
+      const daysMap = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+      const shortDays = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+
+      let todayBtn = null;
+      let todayStr = formatDate(new Date());
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dateStr = formatDate(d);
+        const dayIndex = d.getDay();
+        const dayName = daysMap[dayIndex];
+        const shortName = shortDays[dayIndex];
+        const dateNum = d.getDate();
+
+        const btn = document.createElement('button');
+        btn.className = `day-btn flex-1 h-12 sm:h-14 rounded-lg sm:rounded-xl flex flex-col justify-center items-center cursor-pointer`;
+        btn.innerHTML = `<span class="text-[8px] sm:text-[10px] opacity-70">${shortName}</span><span class="font-bold text-sm sm:text-lg leading-none mt-1">${dateNum}</span>`;
+        
+        btn.onclick = () => changeDay(dayName, dateStr, btn);
+        container.appendChild(btn);
+
+        if (dateStr === todayStr) {
+          todayBtn = btn;
+        }
+      }
+
+      if(todayBtn) {
+        todayBtn.click();
+      } else {
+        container.firstChild.click();
+      }
+    }
+
+    function setStatus(dateStr, idx, status, btnElement) {
+      if(!trackingData[dateStr]) trackingData[dateStr] = {};
+      trackingData[dateStr][idx] = status;
+      localStorage.setItem('gw_schedule_tracking', JSON.stringify(trackingData));
+      
+      const parent = btnElement.parentElement;
+      const buttons = parent.querySelectorAll('button');
+      
+      buttons[0].className = `flex-1 py-2 px-3 rounded-xl border text-[11px] uppercase font-black tracking-widest transition-all duration-300 flex justify-center items-center gap-1.5 cursor-pointer ${status === 'already' ? 'bg-[#00d2be] text-black border-[#00d2be] shadow-[0_0_15px_rgba(0,210,190,0.5)] scale-105' : 'bg-[#0a0a0f] border-gray-700 text-gray-500 hover:border-[#00d2be]/50 hover:text-[#00d2be]'}`;
+      buttons[1].className = `flex-1 py-2 px-3 rounded-xl border text-[11px] uppercase font-black tracking-widest transition-all duration-300 flex justify-center items-center gap-1.5 cursor-pointer ${status === 'notyet' ? 'bg-[#e10600] text-white border-[#e10600] shadow-[0_0_15px_rgba(225,6,0,0.5)] scale-105' : 'bg-[#0a0a0f] border-gray-700 text-gray-500 hover:border-[#e10600]/50 hover:text-[#e10600]'}`;
+    }
+
+    function renderSchedule(dayName, dateStr) {
+      const container = document.getElementById('schedule-list');
+      container.innerHTML = '';
+      
+      const items = scheduleData[dayName] || [];
+      const todayData = trackingData[dateStr] || {};
+      
+      const dateObj = new Date(dateStr);
+      const displayDate = `${dayName.toUpperCase()}, ${dateObj.getDate()} ${dateObj.toLocaleString('id-ID', {month:'short'}).toUpperCase()}`;
+      
+      const headerDate = document.getElementById('current-date-display');
+      if(headerDate) headerDate.innerText = displayDate;
+
+      items.forEach((item, index) => {
+        const catLower = item.cat.toLowerCase();
+        const borderClass = `cat-${catLower}`;
+        const badgeClass = `badge-${catLower}`;
+
+        let timeDisplay = `<span class="title-font text-[13px] md:text-sm font-black text-[#00d2be] tracking-wider whitespace-nowrap">${item.time}</span>`;
+        if (item.time.includes(' - ')) {
+          const times = item.time.split(' - ');
+          timeDisplay = `
+            <span class="block title-font text-[14px] font-black text-white tracking-widest leading-none">${times[0]}</span>
+            <div class="w-full h-[1px] bg-gray-600/50 my-1.5"></div>
+            <span class="block title-font text-[10px] font-bold text-gray-400 tracking-wider">${times[1]}</span>
+          `;
+        }
+
+        const currentStatus = todayData[index];
+        const btnAlreadyClass = currentStatus === 'already' ? 'bg-[#00d2be] text-black border-[#00d2be] shadow-[0_0_15px_rgba(0,210,190,0.5)] scale-105' : 'bg-[#0a0a0f] border-gray-700 text-gray-500 hover:border-[#00d2be]/50 hover:text-[#00d2be]';
+        const btnNotYetClass = currentStatus === 'notyet' ? 'bg-[#e10600] text-white border-[#e10600] shadow-[0_0_15px_rgba(225,6,0,0.5)] scale-105' : 'bg-[#0a0a0f] border-gray-700 text-gray-500 hover:border-[#e10600]/50 hover:text-[#e10600]';
+
+        const iconAlready = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+        const iconNotYet = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+
+        const html = `
+          <div class="schedule-item ${borderClass} rounded-xl p-3 md:p-4 flex flex-col gap-3 bg-black/60 border border-gray-800 shadow-xl backdrop-blur-md ml-1" id="item-${index}">
+            <div class="flex w-full items-center gap-3">
+              <div class="flex-none min-w-[65px] md:min-w-[70px] text-center bg-gray-900/80 rounded-lg p-2 border border-gray-700/50 shadow-inner">
+                ${timeDisplay}
+              </div>
+              <div class="flex-grow min-w-0">
+                <div class="mb-1">
+                  <span class="cat-badge ${badgeClass} shadow-sm px-2 py-1 text-[9px] md:text-[10px] font-bold tracking-widest inline-block">${item.cat}</span>
+                </div>
+                <p class="text-[12px] md:text-sm text-gray-100 font-medium leading-tight md:leading-relaxed break-words whitespace-normal mt-1">${item.act}</p>
+              </div>
+            </div>
+            <div class="w-full flex gap-2 mt-1">
+               <button class="flex-1 py-1.5 px-2 md:py-2 md:px-3 rounded-lg border text-[10px] md:text-[11px] uppercase font-black tracking-widest transition-all duration-300 flex justify-center items-center gap-1 cursor-pointer ${btnAlreadyClass}" onclick="setStatus('${dateStr}', ${index}, 'already', this)">
+                 ${iconAlready} DONE
+               </button>
+               <button class="flex-1 py-1.5 px-2 md:py-2 md:px-3 rounded-lg border text-[10px] md:text-[11px] uppercase font-black tracking-widest transition-all duration-300 flex justify-center items-center gap-1 cursor-pointer ${btnNotYetClass}" onclick="setStatus('${dateStr}', ${index}, 'notyet', this)">
+                 ${iconNotYet} MISS
+               </button>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        
+        setTimeout(() => {
+            const el = document.getElementById(`item-${index}`);
+            if(el) el.classList.add('show');
+        }, 50 + (index * 60)); 
+      });
+    }
+
+    function changeDay(dayName, dateStr, btnElement) {
+      document.querySelectorAll('.day-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      if(btnElement) {
+        btnElement.classList.add('active');
+      }
+      renderSchedule(dayName, dateStr);
+    }
+
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+
+    function openCalendar() {
+       calYear = new Date().getFullYear();
+       calMonth = new Date().getMonth();
+       document.getElementById('calendar-modal').classList.remove('hidden');
+       renderCalendarGrid();
+    }
+    
+    function closeCalendar() {
+       document.getElementById('calendar-modal').classList.add('hidden');
+    }
+
+    function prevMonth() {
+       calMonth--;
+       if (calMonth < 0) { calMonth = 11; calYear--; }
+       renderCalendarGrid();
+    }
+
+    function nextMonth() {
+       calMonth++;
+       if (calMonth > 11) { calMonth = 0; calYear++; }
+       renderCalendarGrid();
+    }
+
+    function openMedKit() { document.getElementById('medkit-modal').classList.remove('hidden'); }
+    function closeMedKit() { document.getElementById('medkit-modal').classList.add('hidden'); }
+
+    function renderCalendarGrid() {
+       const grid = document.getElementById('calendar-grid');
+       if(!grid) return;
+       grid.innerHTML = '';
+       
+       const viewDate = new Date(calYear, calMonth, 1);
+       document.getElementById('cal-month-title').innerText = viewDate.toLocaleString('id-ID', {month:'short', year:'numeric'}).toUpperCase();
+       
+       const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+       const firstDayIdx = new Date(calYear, calMonth, 1).getDay();
+       
+       ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'].forEach(d => {
+           grid.innerHTML += `<div class="text-[10px] text-gray-500 font-bold mb-1">${d}</div>`;
+       });
+       
+       for(let i=0; i<firstDayIdx; i++) { grid.innerHTML += `<div></div>`; }
+       
+       const todayStr = formatDate(new Date());
+
+       for(let i=1; i<=daysInMonth; i++) {
+           const d = new Date(calYear, calMonth, i);
+           const dateStr = formatDate(d);
+           const dayIdx = d.getDay();
+           const dName = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'][dayIdx];
+           
+           const totalTasks = scheduleData[dName].length;
+           const dayData = trackingData[dateStr] || {};
+           let alreadyCount = 0;
+           Object.values(dayData).forEach(v => { if(v === 'already') alreadyCount++; });
+           
+           let bgColor = 'bg-gray-800/40';
+           let textColor = 'text-gray-500';
+           let border = 'border-gray-700/50';
+           
+           if(dateStr === todayStr) {
+              border = 'border-[#00d2be] shadow-[0_0_8px_rgba(0,210,190,0.5)]';
+              textColor = 'text-white';
+           }
+           
+           if(Object.keys(dayData).length > 0) {
+               if(alreadyCount === totalTasks) {
+                   bgColor = 'bg-green-500/20'; textColor = 'text-green-400'; border = 'border-green-500/50';
+               } else if(alreadyCount > 0) {
+                   bgColor = 'bg-yellow-500/20'; textColor = 'text-yellow-400'; border = 'border-yellow-500/50';
+               } else {
+                   bgColor = 'bg-red-500/20'; textColor = 'text-red-400'; border = 'border-red-500/50';
+               }
+           }
+           
+           grid.innerHTML += `
+             <div class="aspect-square flex items-center justify-center rounded-lg text-[11px] font-bold border ${bgColor} ${textColor} ${border} transition-colors">
+                ${i}
+             </div>
+           `;
+       }
+    }
+
+    window.onload = () => { initCloudSync(); };
+  </script>
+</body>
+</html>```
